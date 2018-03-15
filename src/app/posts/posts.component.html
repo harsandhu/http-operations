@@ -1,0 +1,8 @@
+<input type="text" class="form-control" (keyup.enter)="createPost(title)" #title>
+<ul class="list-group" style="padding:20px;">
+  <li class="list-group-item" *ngFor="let post of posts">
+    <button type="button" name="button" class="btn btn-default btn-small" (click)="updatePostObject(post)">Update</button>
+    {{post.title}}
+    <button type="button" name="button" class="btn btn-default btn-small" (click)="deletePostObject(post)">Delete</button>
+  </li>
+</ul>
