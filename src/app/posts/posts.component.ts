@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { PostService } from '.././services/post.service';
+import { AppError } from '.././common/errors/app-error';
+import { NotFoundError } from '.././common/errors/not-found-error';
+
 @Component({
   selector: 'app-posts',
   templateUrl: './posts.component.html',
@@ -7,7 +10,6 @@ import { PostService } from '.././services/post.service';
 })
 export class PostsComponent implements OnInit {
   posts: any[];
-  private url = 'http://jsonplaceholder.typicode.com/posts';
 
   constructor(private service: PostService) {}
 
@@ -19,8 +21,14 @@ export class PostsComponent implements OnInit {
       .subscribe( response=> {
         post['id'] = response.json().id;
         this.posts.splice(0,0, post);
-        console.log(response.json());
         input.value = '';
+      }, (error: Response)=> {
+        if (error.status === 400){
+        //  this.form.setErrors()
+        }
+        else{
+          alert('an unexpected error returned.');
+        }
       });
 
    }
@@ -29,7 +37,10 @@ export class PostsComponent implements OnInit {
      this.service.updatePosts(post, JSON.stringify({ isRead: true}))
       .subscribe(x=> {
         console.log(x);
-      });
+      }, error=> {
+        alert('an unexpected error returned.');
+    });
+
    }
 
    deletePostObject(post){
@@ -37,14 +48,22 @@ export class PostsComponent implements OnInit {
       .subscribe(x=> {
         let index = this.posts.indexOf(post);
         this.posts.splice(index, 1);
-      });
+      }, (error: AppError)=> {
+        if(error instanceof NotFoundError)
+          alert('this post has already been deleted.');
+        else
+          alert('an unexpected error returned.');
+    });
    }
 
   ngOnInit() {
     this.service.getPosts()
       .subscribe(response=> {
         this.posts = response.json();
-      });
+      }, error=> {
+        alert('an unexpected error returned.');
+        console.log(error);
+    });
   }
 
 }
